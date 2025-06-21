@@ -1,18 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Add HTTP headers to allow framing by your own origin and any Vercel subdomain
   async headers() {
     return [
       {
-        // Match all routes in your app (change source if you only need specific paths)
-        source: '/:path*',
+        source: '/:path*', // or only the routes you actually iframe
         headers: [
           {
             key: 'Content-Security-Policy',
-            value:
-              "default-src 'self'; frame-ancestors 'self' https://*.vercel.app",
+            value: [
+              "default-src 'self'",
+              'frame-ancestors ' +
+                [
+                  "'self'", // allow same-origin
+                  'https://*.vercel.app', // any Vercel subdomain
+                  'https://*.e2b.app', // any E2B subdomain
+                  'http://localhost:3000', // local dev
+                ].join(' '),
+            ].join('; '),
           },
-          // Ensure you are NOT also sending an X-Frame-Options header that would override this
+          // (make sure you do NOT send an X-Frame-Options header that conflicts)
         ],
       },
     ]
